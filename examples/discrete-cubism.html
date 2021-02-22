@@ -1,0 +1,25 @@
+<HTML>
+<HEAD></HEAD>
+<BODY>
+<link rel="stylesheet" type="text/css" href="/examples/discrete-cubism.css">
+<div id="example1"></div>
+<br/>Step 1: Add a user by the name of
+<input id="UserName"/>
+<button id="AddUser" onClick="javascript:addUser();">Go!</button>
+<br/>Step 2: Add a new event by the name of
+<input id="NewEventName"/>
+<button id="AddNewEvent" onClick="javascript:addNewEvent();">Go!</button>
+<br/>Step 3: Add event
+<select id="EventList"></select>to user
+<select id="UserList"></select>
+<button id="AddEvent" onClick="javascript:addEvent();">Go!</button>
+<br/>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.js"
+          charset="utf-8"></script>
+  <script src="/dist/cubism-ts.bundle.js"
+          charset="utf-8"></script>
+<script src="/examples/lib/highlight.min.js"></script>
+<script src="/examples/discrete-cubism.js"></script>
+</BODY>
+</HTML>

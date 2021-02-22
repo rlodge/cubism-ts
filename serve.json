@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "examples/index.html" },
+    { "source": "build/module/lib/:name.js", "destination": "build/module/lib/:name.js" },
+    { "source": "build/module/lib/:name", "destination": "build/module/lib/:name.js" }
+  ],
+  "redirects": [
+    { "source": "build/module", "destination": "build/module/index.js" }
+  ],
+  "cleanUrls": false,
+  "directoryListing": false
+}
