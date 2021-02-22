@@ -40,7 +40,7 @@ export class Context {
 
   constructor() {
     this.update();
-    this._timeout = setTimeout(this.start, Context.startDelayMs);
+    this._timeout = setTimeout(() => {this.start();}, Context.startDelayMs);
   }
 
   axis(): Axis {
