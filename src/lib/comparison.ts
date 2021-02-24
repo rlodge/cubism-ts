@@ -44,7 +44,7 @@ export class Comparison {
     Datum,
     PElement extends BaseType,
     PDatum
-  >(selection: Selection<GElement, Datum, PElement, PDatum>) {
+  >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
     const context = this.context;
     const comparison = this;
 
@@ -83,7 +83,7 @@ export class Comparison {
 
       let ready = false;
 
-      let comparisonDatum: ComparisonDatum = {
+      const comparisonDatum: ComparisonDatum = {
         id,
         primary: primaryMetric,
         secondary: secondaryMetric,
@@ -236,7 +236,7 @@ export class Comparison {
     PElement extends BaseType,
     PDatum
   >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
-    let context = this.context;
+    const context = this.context;
 
     selection.selectAll<GElement, ComparisonDatum>('canvas')
       .each(function (d) {

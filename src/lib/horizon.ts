@@ -112,7 +112,7 @@ export class Horizon {
       const span = select(this).select('.value');
       const m = colors_.length >> 1;
 
-      let horizonDatum: HorizonDatum = {
+      const horizonDatum: HorizonDatum = {
         id,
         metric: metric_,
         changeId: `change.horizon-${id}`,
@@ -150,8 +150,8 @@ export class Horizon {
             if (extent_ != null) extent = extent_;
 
             // if this is an update (with no extent change), copy old values!
-            let i0 = 0,
-              max = Math.max(-extent[0], extent[1]);
+            let i0 = 0;
+            const max = Math.max(-extent[0], extent[1]);
             if (this === context) {
               if (max === max_) {
                 i0 = horizon._width - 6;
@@ -287,7 +287,7 @@ export class Horizon {
     PElement extends BaseType,
     PDatum
   >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
-    let context = this.context;
+    const context = this.context;
 
     selection.selectAll<GElement, HorizonDatum>('canvas')
       .each(function (d) {

@@ -1,6 +1,7 @@
-import { json, text } from 'd3-fetch';
-import { Context } from './context';
-import { oneSecondInMillis } from './shared-constants'
+import {json, text} from 'd3-fetch';
+import {Context} from './context';
+import {oneSecondInMillis} from './shared-constants'
+import {Metric} from "./metric";
 
 interface GraphiteMetric {
   path: string;
@@ -53,42 +54,39 @@ export class Graphite {
       });
   }
 
-  metric(expression: string) {
+  metric(expression: string): Metric {
     const sum = 'sum';
 
-    const metric = this.context.metric((start, stop, step, callback) => {
-      let target = expression;
+    return this.context.metric((start, stop, step, callback) => {
+        let target = expression;
 
-      // Apply the summarize, if necessary.
-      if (step !== oneSecondInMillis) {
-        target =
-          `summarize(${target},'${!(
-            step % 36e5
-          )
-                                  ? `${step / 36e5}hour`
-                                  : !(
-              step % 6e4
+        // Apply the summarize, if necessary.
+        if (step !== oneSecondInMillis) {
+          target =
+            `summarize(${target},'${!(
+              step % 36e5
             )
-                                    ? `${step / 6e4}min`
-                                    : `${step / 1e3}sec`}','${sum}')`;
-      }
+                                    ? `${step / 36e5}hour`
+                                    : !(
+                step % 6e4
+              )
+                                      ? `${step / 6e4}min`
+                                      : `${step / 1e3}sec`}','${sum}')`;
+        }
 
-      text(
-        `${this.host}/render?format=raw&target=${encodeURIComponent(`alias(${target},'')`)}&from=${this.dateFormatter(
-          +start - 2 * step)// off-by-two?
-        }&until=${this.dateFormatter(+stop - 1000)}`
-      ).then((text) => {
-        if (!text) return callback(new Error('unable to load data'));
-        callback(null, Graphite.parseGraphite(text));
-      });
-    }, (expression += ''));
-
-    // metric.summarize = _sum => {
-    //     sum = _sum;
-    //     return metric;
-    // };
-
-    return metric;
+        text(
+          `${this.host}/render?format=raw&target=${encodeURIComponent(`alias(${target},'')`)}&from=${this.dateFormatter(
+            +start - 2 * step)// off-by-two?
+          }&until=${this.dateFormatter(+stop - 1000)}`
+        ).then((text) => {
+          if (!text) return callback(new Error('unable to load data'));
+          callback(null, Graphite.parseGraphite(text));
+        });
+      },
+      (
+        expression += ''
+      )
+    );
   }
   private dateFormatter = (time: number) => Math.floor(time / 1000);
 }

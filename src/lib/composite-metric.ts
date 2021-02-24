@@ -9,7 +9,7 @@ export class CompositeMetric extends Metric {
     private operatorSymbol: string,
     private operator: (a: number, b: number) => number
   ) {
-    super(context, (): void => {}, `${left} ${operatorSymbol} ${right}`);
+    super(context, (): void => {/*not empty*/}, `${left} ${operatorSymbol} ${right}`);
   }
 
   shift(offset: number): Metric {
@@ -43,7 +43,7 @@ export class CompositeMetric extends Metric {
     return this;
   }
 
-  prepare(start1In: number | Date, stopIn: number | Date) {
+  prepare(start1In: number | Date, stopIn: number | Date): void {
     this.left.prepare(start1In, stopIn);
     this.right.prepare(start1In, stopIn);
   }
