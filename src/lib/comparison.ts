@@ -1,17 +1,25 @@
-import { mouse, ValueFn } from 'd3-selection';
-import { ScaleLinear } from 'd3-scale';
-import { format } from 'd3-format';
-import { interpolateRound } from 'd3-interpolate';
-import { scaleLinear } from 'd3-scale';
-import { BaseType, ContainerElement, select, Selection } from 'd3-selection';
-import { Context, ContextId } from './context';
-import { Metric } from './metric';
-import { Extent, Formatter, MetricFinder, TitleGenerator } from './shared-types';
+import {
+  BaseType,
+  ContainerElement,
+  mouse,
+  select,
+  Selection
+} from 'd3-selection';
+import {ScaleLinear, scaleLinear} from 'd3-scale';
+import {format} from 'd3-format';
+import {interpolateRound} from 'd3-interpolate';
+import {Context, ContextId} from './context';
+import {Metric} from './metric';
+import {Extent, Formatter, MetricFinder, TitleGenerator} from './shared-types';
 
 interface ComparisonDatum {
   id: ContextId;
   primary: Metric;
   secondary: Metric;
+  changeId: string;
+  focusId: string;
+  mouseMoveId: string;
+  mouseOutId: string;
 }
 
 export class Comparison {
@@ -27,17 +35,8 @@ export class Comparison {
   private _formatChange: Formatter = format('+.0%');
   private _colors: string[] = ['#9ecae1', '#225b84', '#a1d99b', '#22723a'];
   private _strokeWidth = 1.5;
-  private readonly changeId: string;
-  private readonly focusId: string;
-  private readonly mouseMoveId: string;
-  private readonly mouseOutId: string;
 
   constructor(private context: Context) {
-    const id = context.generateId();
-    this.changeId = `change.comparison-${id}`;
-    this.focusId = `focus.comparison-${id}`;
-    this.mouseMoveId = `mousemove.comparison-${id}`;
-    this.mouseOutId = `mouseout.comparison-${id}`;
   }
 
   render<
@@ -48,12 +47,6 @@ export class Comparison {
   >(selection: Selection<GElement, Datum, PElement, PDatum>) {
     const context = this.context;
     const comparison = this;
-    selection
-      .on(this.mouseMoveId, function () {
-        // tslint:disable-next-line: no-invalid-this
-        context.focus(Math.round(mouse(this)[0]));
-      })
-      .on(this.mouseOutId, () => context.focus(null));
 
     selection
       .append('canvas')
@@ -90,11 +83,24 @@ export class Comparison {
 
       let ready = false;
 
-      canvas.datum<ComparisonDatum>({
+      let comparisonDatum: ComparisonDatum = {
         id,
         primary: primaryMetric,
         secondary: secondaryMetric,
-      });
+        changeId: `change.comparison-${id}`,
+        focusId: `focus.comparison-${id}`,
+        mouseMoveId: `mousemove.comparison-${id}`,
+        mouseOutId: `mouseout.comparison-${id}`,
+      };
+
+      div
+        .on(comparisonDatum.mouseMoveId, function () {
+          // tslint:disable-next-line: no-invalid-this
+          context.focus(Math.round(mouse(this)[0]));
+        })
+        .on(comparisonDatum.mouseOutId, () => context.focus(null));
+
+      canvas.datum<ComparisonDatum>(comparisonDatum);
       const canvasNode = canvas.node();
       if (canvasNode) {
         const canvasContext = canvasNode.getContext('2d');
@@ -204,8 +210,8 @@ export class Comparison {
             change(/*start*/);
             focus();
             if (ready) {
-              primaryMetric.on(comparison.changeId, () => {/*empty function*/});
-              secondaryMetric.on(comparison.changeId, () => {/*empty function*/});
+              primaryMetric.on(comparisonDatum.changeId, () => {/*empty function*/});
+              secondaryMetric.on(comparisonDatum.changeId, () => {/*empty function*/});
             }
           };
 
@@ -213,12 +219,12 @@ export class Comparison {
           // but defer subsequent updates to the context change.
           // Note this someone still needs to listen to the metric,
           // so this it continues to update automatically.
-          primaryMetric.on(comparison.changeId, firstChange);
-          secondaryMetric.on(comparison.changeId, firstChange);
+          primaryMetric.on(comparisonDatum.changeId, firstChange);
+          secondaryMetric.on(comparisonDatum.changeId, firstChange);
 
           // Update the chart when the context changes.
-          context.on(comparison.changeId, change);
-          context.on(comparison.focusId, focus);
+          context.on(comparisonDatum.changeId, change);
+          context.on(comparisonDatum.focusId, focus);
         }
       }
     });
@@ -230,16 +236,17 @@ export class Comparison {
     PElement extends BaseType,
     PDatum
   >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
-    const _remove: ValueFn<BaseType, ComparisonDatum, void> = (d) => {
-      d.primary.on(this.changeId);
-      d.secondary.on(this.changeId);
-      this.context.on(this.changeId).on(this.focusId);
-    };
+    let context = this.context;
 
-    selection.on(this.mouseMoveId, null).on(this.mouseOutId, null);
-    selection
-      .selectAll<BaseType, ComparisonDatum>('canvas')
-      .each(_remove)
+    selection.selectAll<GElement, ComparisonDatum>('canvas')
+      .each(function (d) {
+        d.primary.on(d.changeId);
+        d.secondary.on(d.changeId);
+        context.on(d.changeId).on(d.focusId);
+        select(this)
+          .on(d.mouseMoveId, null)
+          .on(d.mouseOutId, null)
+      })
       .remove();
 
     selection.selectAll('.title,.value').remove();
