@@ -1,10 +1,10 @@
 /* librato (http://dev.librato.com/v1/post/metrics) source
  * If you want to see an example of how to use this source, check: https://gist.github.com/drio/5792680
  */
-import {json} from 'd3-fetch';
-import {Context} from './context';
-import {VERSION} from './version';
-import {Metric, MetricRequestCallback} from './metric';
+import { json } from 'd3-fetch';
+import { Context } from './context';
+import { VERSION } from './version';
+import { Metric, MetricRequestCallback } from './metric';
 
 interface LibratoMetricSeries {
   measure_time: number;
@@ -25,7 +25,6 @@ interface LibratoMetrics {
 }
 
 export class Librato {
-
   private static makeUrl(
     sdate: number,
     edate: number,

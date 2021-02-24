@@ -3,14 +3,19 @@ import {
   ContainerElement,
   mouse,
   select,
-  Selection
+  Selection,
 } from 'd3-selection';
-import {ScaleLinear, scaleLinear} from 'd3-scale';
-import {format} from 'd3-format';
-import {interpolateRound} from 'd3-interpolate';
-import {Context, ContextId} from './context';
-import {Metric} from './metric';
-import {Extent, Formatter, MetricFinder, TitleGenerator} from './shared-types';
+import { ScaleLinear, scaleLinear } from 'd3-scale';
+import { format } from 'd3-format';
+import { interpolateRound } from 'd3-interpolate';
+import { Context, ContextId } from './context';
+import { Metric } from './metric';
+import {
+  Extent,
+  Formatter,
+  MetricFinder,
+  TitleGenerator,
+} from './shared-types';
 
 interface ComparisonDatum {
   id: ContextId;
@@ -23,7 +28,6 @@ interface ComparisonDatum {
 }
 
 export class Comparison {
-
   private static readonly expectedNumberOfColors = 4;
 
   private _height = 120;
@@ -36,8 +40,7 @@ export class Comparison {
   private _colors: string[] = ['#9ecae1', '#225b84', '#a1d99b', '#22723a'];
   private _strokeWidth = 1.5;
 
-  constructor(private context: Context) {
-  }
+  constructor(private context: Context) {}
 
   render<
     GElement extends ContainerElement,
@@ -63,17 +66,17 @@ export class Comparison {
       const primaryMetric =
         comparison._primary instanceof Metric
           ? comparison._primary
-          // tslint:disable-next-line: no-invalid-this
-          : comparison._primary.call(this, d, i);
+          : // tslint:disable-next-line: no-invalid-this
+            comparison._primary.call(this, d, i);
       const secondaryMetric =
         comparison._secondary instanceof Metric
           ? comparison._secondary
-          // tslint:disable-next-line: no-invalid-this
-          : comparison._secondary.call(this, d, i);
+          : // tslint:disable-next-line: no-invalid-this
+            comparison._secondary.call(this, d, i);
       const metricExtent =
         typeof comparison._extent === 'function'
-          // tslint:disable-next-line: no-invalid-this
-          ? comparison._extent.call(this, d, i)
+          ? // tslint:disable-next-line: no-invalid-this
+            comparison._extent.call(this, d, i)
           : comparison._extent;
       // tslint:disable-next-line: no-invalid-this
       const div = select(this);
@@ -109,12 +112,7 @@ export class Comparison {
           const change = (/*start: number*/) => {
             canvasContext.save();
             const comparisonWidth = comparison.width();
-            canvasContext.clearRect(
-              0,
-              0,
-              comparisonWidth,
-              comparison._height
-            );
+            canvasContext.clearRect(0, 0, comparisonWidth, comparison._height);
 
             // update the scale
             const primaryExtent = primaryMetric.extent();
@@ -133,7 +131,11 @@ export class Comparison {
             const lowNegativeIndex = 1;
 
             canvasContext.fillStyle = comparison._colors[lowPositiveIndex];
-            for (let pixelIndex = 0; pixelIndex < comparisonWidth; ++pixelIndex) {
+            for (
+              let pixelIndex = 0;
+              pixelIndex < comparisonWidth;
+              ++pixelIndex
+            ) {
               const y0 = comparison._scale(primaryMetric.valueAt(pixelIndex));
               const y1 = comparison._scale(secondaryMetric.valueAt(pixelIndex));
               if (y0 !== undefined && y1 !== undefined && y0 < y1) {
@@ -143,7 +145,11 @@ export class Comparison {
 
             // negative changes
             canvasContext.fillStyle = comparison._colors[highNegativeIndex];
-            for (let pixelIndex = 0; pixelIndex < comparisonWidth; ++pixelIndex) {
+            for (
+              let pixelIndex = 0;
+              pixelIndex < comparisonWidth;
+              ++pixelIndex
+            ) {
               const y0 = comparison._scale(primaryMetric.valueAt(pixelIndex));
               const y1 = comparison._scale(secondaryMetric.valueAt(pixelIndex));
               if (y0 !== undefined && y1 !== undefined && y0 > y1) {
@@ -153,17 +159,30 @@ export class Comparison {
 
             // positive values
             canvasContext.fillStyle = comparison._colors[highPositiveIndex];
-            for (let pixelIndex = 0; pixelIndex < comparisonWidth; ++pixelIndex) {
+            for (
+              let pixelIndex = 0;
+              pixelIndex < comparisonWidth;
+              ++pixelIndex
+            ) {
               const y0 = comparison._scale(primaryMetric.valueAt(pixelIndex));
               const y1 = comparison._scale(secondaryMetric.valueAt(pixelIndex));
               if (y0 !== undefined && y1 !== undefined && y0 <= y1) {
-                canvasContext.fillRect(round(pixelIndex), y0, 1, comparison._strokeWidth);
+                canvasContext.fillRect(
+                  round(pixelIndex),
+                  y0,
+                  1,
+                  comparison._strokeWidth
+                );
               }
             }
 
             // negative values
             canvasContext.fillStyle = comparison._colors[lowNegativeIndex];
-            for (let pixelIndex = 0; pixelIndex < comparisonWidth; ++pixelIndex) {
+            for (
+              let pixelIndex = 0;
+              pixelIndex < comparisonWidth;
+              ++pixelIndex
+            ) {
               const y0 = comparison._scale(primaryMetric.valueAt(pixelIndex));
               const y1 = comparison._scale(secondaryMetric.valueAt(pixelIndex));
               if (y0 !== undefined && y1 !== undefined && y0 > y1) {
@@ -182,9 +201,8 @@ export class Comparison {
           const focus = (focusIndex = comparison.width() - 1) => {
             const valuePrimary = primaryMetric.valueAt(focusIndex);
             const valueSecondary = secondaryMetric.valueAt(focusIndex);
-            const valueChange = (
-              valuePrimary - valueSecondary
-            ) / valueSecondary;
+            const valueChange =
+              (valuePrimary - valueSecondary) / valueSecondary;
 
             if (isNaN(valuePrimary)) {
               spanPrimary.datum(valuePrimary).text(null);
@@ -192,10 +210,9 @@ export class Comparison {
               spanPrimary.datum(valuePrimary).text(comparison._formatPrimary);
             }
 
-            const classes =
-              `value change ${valueChange > 0 ? 'positive' : valueChange < 0
-                                                             ? 'negative'
-                                                             : ''}`;
+            const classes = `value change ${
+              valueChange > 0 ? 'positive' : valueChange < 0 ? 'negative' : ''
+            }`;
             if (isNaN(valueChange)) {
               spanChange.datum(valueChange).text(null).attr('class', classes);
             } else {
@@ -210,8 +227,12 @@ export class Comparison {
             change(/*start*/);
             focus();
             if (ready) {
-              primaryMetric.on(comparisonDatum.changeId, () => {/*empty function*/});
-              secondaryMetric.on(comparisonDatum.changeId, () => {/*empty function*/});
+              primaryMetric.on(comparisonDatum.changeId, () => {
+                /*empty function*/
+              });
+              secondaryMetric.on(comparisonDatum.changeId, () => {
+                /*empty function*/
+              });
             }
           };
 
@@ -230,22 +251,18 @@ export class Comparison {
     });
   }
 
-  remove<
-    GElement extends BaseType,
-    Datum,
-    PElement extends BaseType,
-    PDatum
-  >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
+  remove<GElement extends BaseType, Datum, PElement extends BaseType, PDatum>(
+    selection: Selection<GElement, Datum, PElement, PDatum>
+  ): void {
     const context = this.context;
 
-    selection.selectAll<GElement, ComparisonDatum>('canvas')
+    selection
+      .selectAll<GElement, ComparisonDatum>('canvas')
       .each(function (d) {
         d.primary.on(d.changeId);
         d.secondary.on(d.changeId);
         context.on(d.changeId).on(d.focusId);
-        select(this)
-          .on(d.mouseMoveId, null)
-          .on(d.mouseOutId, null)
+        select(this).on(d.mouseMoveId, null).on(d.mouseOutId, null);
       })
       .remove();
 

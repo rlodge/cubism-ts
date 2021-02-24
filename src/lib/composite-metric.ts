@@ -9,7 +9,13 @@ export class CompositeMetric extends Metric {
     private operatorSymbol: string,
     private operator: (a: number, b: number) => number
   ) {
-    super(context, (): void => {/*not empty*/}, `${left} ${operatorSymbol} ${right}`);
+    super(
+      context,
+      (): void => {
+        /*not empty*/
+      },
+      `${left} ${operatorSymbol} ${right}`
+    );
   }
 
   shift(offset: number): Metric {

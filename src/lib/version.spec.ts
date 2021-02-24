@@ -1,4 +1,4 @@
-import {VERSION} from '.';
+import { VERSION } from '.';
 
 import test from 'ava';
 

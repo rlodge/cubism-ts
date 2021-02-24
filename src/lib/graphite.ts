@@ -1,7 +1,7 @@
-import {json, text} from 'd3-fetch';
-import {Context} from './context';
-import {oneSecondInMillis} from './shared-constants'
-import {Metric} from "./metric";
+import { json, text } from 'd3-fetch';
+import { Context } from './context';
+import { oneSecondInMillis } from './shared-constants';
+import { Metric } from './metric';
 
 interface GraphiteMetric {
   path: string;
@@ -12,7 +12,6 @@ interface GraphiteMetrics {
 }
 
 export class Graphite {
-
   private static parseGraphite(metricText: string) {
     const i = metricText.indexOf('|');
 
@@ -29,13 +28,11 @@ export class Graphite {
     return this.host;
   }
 
-  find(
-    pattern: string,
-    callback: (er: any, metrics?: string[]) => void
-  ): any {
+  find(pattern: string, callback: (er: any, metrics?: string[]) => void): any {
     json<GraphiteMetrics>(
       `${this.host}/metrics/find?format=completer&query=${encodeURIComponent(
-        pattern)}`
+        pattern
+      )}`
     )
       .then((result) => {
         if (!result) {
@@ -58,35 +55,30 @@ export class Graphite {
     const sum = 'sum';
 
     return this.context.metric((start, stop, step, callback) => {
-        let target = expression;
+      let target = expression;
 
-        // Apply the summarize, if necessary.
-        if (step !== oneSecondInMillis) {
-          target =
-            `summarize(${target},'${!(
-              step % 36e5
-            )
-                                    ? `${step / 36e5}hour`
-                                    : !(
-                step % 6e4
-              )
-                                      ? `${step / 6e4}min`
-                                      : `${step / 1e3}sec`}','${sum}')`;
-        }
+      // Apply the summarize, if necessary.
+      if (step !== oneSecondInMillis) {
+        target = `summarize(${target},'${
+          !(step % 36e5)
+            ? `${step / 36e5}hour`
+            : !(step % 6e4)
+            ? `${step / 6e4}min`
+            : `${step / 1e3}sec`
+        }','${sum}')`;
+      }
 
-        text(
-          `${this.host}/render?format=raw&target=${encodeURIComponent(`alias(${target},'')`)}&from=${this.dateFormatter(
-            +start - 2 * step)// off-by-two?
-          }&until=${this.dateFormatter(+stop - 1000)}`
-        ).then((text) => {
-          if (!text) return callback(new Error('unable to load data'));
-          callback(null, Graphite.parseGraphite(text));
-        });
-      },
-      (
-        expression += ''
-      )
-    );
+      text(
+        `${this.host}/render?format=raw&target=${encodeURIComponent(
+          `alias(${target},'')`
+        )}&from=${
+          this.dateFormatter(+start - 2 * step) // off-by-two?
+        }&until=${this.dateFormatter(+stop - 1000)}`
+      ).then((text) => {
+        if (!text) return callback(new Error('unable to load data'));
+        callback(null, Graphite.parseGraphite(text));
+      });
+    }, (expression += ''));
   }
   private dateFormatter = (time: number) => Math.floor(time / 1000);
 }

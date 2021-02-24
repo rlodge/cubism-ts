@@ -35,12 +35,17 @@ export class Context {
   private _stop1!: Date; // the start and stop for the next prepare event
   private _timeout: number | null = null;
   private _focus: number | null = null;
-  private _scale: ScaleTime<number, number> = scaleTime().range([0, Context.defaultTimeScale]);
+  private _scale: ScaleTime<number, number> = scaleTime().range([
+    0,
+    Context.defaultTimeScale,
+  ]);
   private _keyDown: KeyDown | null = null;
 
   constructor() {
     this.update();
-    this._timeout = setTimeout(() => {this.start();}, Context.startDelayMs);
+    this._timeout = setTimeout(() => {
+      this.start();
+    }, Context.startDelayMs);
   }
 
   axis(): Axis {

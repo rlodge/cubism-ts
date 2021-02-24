@@ -24,8 +24,9 @@ export class Cube {
         callback: MetricRequestCallback
       ) => {
         json<CubeMetric[]>(
-          `${this.host}/1.0/metric?expression=${encodeURIComponent(expression)}&start=${isoFormat(
-            start)}&stop=${isoFormat(stop)}&step=${step}`
+          `${this.host}/1.0/metric?expression=${encodeURIComponent(
+            expression
+          )}&start=${isoFormat(start)}&stop=${isoFormat(stop)}&step=${step}`
         ).then(
           (data?: CubeMetric[]) => {
             if (data && data.length > 0) {

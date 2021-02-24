@@ -16,7 +16,6 @@ export enum AxisOrientation {
 }
 
 export class Axis {
-
   private static readonly axisDefaultHeight = 28;
   private static readonly axisDefaultOffset = 4;
   private static readonly axisTopOffset = 27;
@@ -60,12 +59,9 @@ export class Axis {
     return this;
   }
 
-  render<
-    GElement extends BaseType,
-    Datum,
-    PElement extends BaseType,
-    PDatum
-  >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
+  render<GElement extends BaseType, Datum, PElement extends BaseType, PDatum>(
+    selection: Selection<GElement, Datum, PElement, PDatum>
+  ): void {
     let tick: Selection<Element, unknown, null, undefined> | null = null;
 
     const g = selection

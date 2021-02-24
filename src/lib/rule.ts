@@ -25,12 +25,9 @@ export class Rule {
     return this;
   }
 
-  render<
-    GElement extends BaseType,
-    Datum,
-    PElement extends BaseType,
-    PDatum
-  >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
+  render<GElement extends BaseType, Datum, PElement extends BaseType, PDatum>(
+    selection: Selection<GElement, Datum, PElement, PDatum>
+  ): void {
     const line = selection
       .append('div')
       .datum({ id: this.id })
@@ -97,12 +94,9 @@ export class Rule {
     });
   }
 
-  remove<
-    GElement extends BaseType,
-    Datum,
-    PElement extends BaseType,
-    PDatum
-  >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
+  remove<GElement extends BaseType, Datum, PElement extends BaseType, PDatum>(
+    selection: Selection<GElement, Datum, PElement, PDatum>
+  ): void {
     selection
       .selectAll('.line')
       .each(() => this.context.on('focus.rule-' + this.id))

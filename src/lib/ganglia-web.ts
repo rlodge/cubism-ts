@@ -23,7 +23,6 @@ interface Graplot {
 }
 
 export class GangliaWeb {
-
   private readonly host: string;
   private readonly uriPathPrefix: string;
 
@@ -62,11 +61,16 @@ export class GangliaWeb {
       callback: MetricRequestCallback
     ) => {
       const constructGangliaWebRequestQueryParams = () =>
-        `c=${metricInfo.clusterName}&${metricKeyName}=${metricInfo.metricName}&h=${metricInfo.hostName}&cs=${+start / oneSecondInMillis}&ce=${+stop / oneSecondInMillis}&step=${step / oneSecondInMillis}&graphlot=1`;
+        `c=${metricInfo.clusterName}&${metricKeyName}=${
+          metricInfo.metricName
+        }&h=${metricInfo.hostName}&cs=${+start / oneSecondInMillis}&ce=${
+          +stop / oneSecondInMillis
+        }&step=${step / oneSecondInMillis}&graphlot=1`;
 
       json<Graplot[]>(
-        `${this.host +
-        this.uriPathPrefix}graph.php?${constructGangliaWebRequestQueryParams()}`
+        `${
+          this.host + this.uriPathPrefix
+        }graph.php?${constructGangliaWebRequestQueryParams()}`
       )
         .then((result) => {
           if (result === undefined) {

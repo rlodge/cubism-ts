@@ -9,7 +9,6 @@ export interface KeyDownModifiers {
 }
 
 export class KeyDown {
-
   private static modifiersMatch(
     event: KeyboardEvent,
     applicableModifiers: KeyDownModifiers

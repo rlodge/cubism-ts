@@ -1,15 +1,15 @@
-import {ScaleLinear, scaleLinear} from 'd3-scale';
+import { ScaleLinear, scaleLinear } from 'd3-scale';
 import {
   BaseType,
   ContainerElement,
   mouse,
   select,
-  Selection
+  Selection,
 } from 'd3-selection';
-import {format} from 'd3-format';
-import {interpolateRound} from 'd3-interpolate';
-import {Context, ContextId} from './context';
-import {Metric} from './metric';
+import { format } from 'd3-format';
+import { interpolateRound } from 'd3-interpolate';
+import { Context, ContextId } from './context';
+import { Metric } from './metric';
 import {
   ColorFinder,
   Extent,
@@ -32,7 +32,6 @@ interface HorizonDatum {
 }
 
 export class Horizon {
-
   private get _width(): number {
     return this.context.size();
   }
@@ -93,7 +92,6 @@ export class Horizon {
     selection.append('span').attr('class', 'value');
 
     selection.each(function (d, i) {
-
       const id = context.generateId();
 
       const metric_ =
@@ -119,7 +117,7 @@ export class Horizon {
         focusId: `focus.horizon-${id}`,
         mouseMoveId: `mousemove.horizon-${id}`,
         mouseOutId: `mouseout.horizon-${id}`,
-      }
+      };
 
       select(this)
         .on(horizonDatum.mouseMoveId, function () {
@@ -137,10 +135,9 @@ export class Horizon {
       if (canvasNode) {
         const maybeCanvasContext = canvasNode.getContext('2d');
         if (maybeCanvasContext) {
-
           const canvasContext = maybeCanvasContext;
 
-          const change = function(start1In: Date | number) {
+          const change = function (start1In: Date | number) {
             const start1 = +start1In;
             canvasContext.save();
 
@@ -171,7 +168,12 @@ export class Horizon {
                       horizon._width - dx,
                       horizon._height
                     );
-                    canvasContext.clearRect(0, 0, horizon._width, horizon._height);
+                    canvasContext.clearRect(
+                      0,
+                      0,
+                      horizon._width,
+                      horizon._height
+                    );
                     canvasContext.drawImage(canvas0.canvas, 0, 0);
                   }
                 }
@@ -183,7 +185,12 @@ export class Horizon {
             horizon._scale.domain([0, (max_ = max)]);
 
             // clear for the new data
-            canvasContext.clearRect(i0, 0, horizon._width - i0, horizon._height);
+            canvasContext.clearRect(
+              i0,
+              0,
+              horizon._width - i0,
+              horizon._height
+            );
 
             // record whether there are negative values to display
             let negative;
@@ -247,7 +254,7 @@ export class Horizon {
             }
 
             canvasContext.restore();
-          }
+          };
 
           const focus = (i: number | null) => {
             if (i == null) {
@@ -281,21 +288,17 @@ export class Horizon {
     });
   }
 
-  remove<
-    GElement extends BaseType,
-    Datum,
-    PElement extends BaseType,
-    PDatum
-  >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
+  remove<GElement extends BaseType, Datum, PElement extends BaseType, PDatum>(
+    selection: Selection<GElement, Datum, PElement, PDatum>
+  ): void {
     const context = this.context;
 
-    selection.selectAll<GElement, HorizonDatum>('canvas')
+    selection
+      .selectAll<GElement, HorizonDatum>('canvas')
       .each(function (d) {
         d.metric.on(d.changeId);
         context.on(d.changeId).on(d.focusId);
-        select(this)
-          .on(d.mouseMoveId, null)
-          .on(d.mouseOutId, null)
+        select(this).on(d.mouseMoveId, null).on(d.mouseOutId, null);
       })
       .remove();
 
