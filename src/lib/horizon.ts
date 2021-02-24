@@ -140,7 +140,7 @@ export class Horizon {
 
           const canvasContext = maybeCanvasContext;
 
-          function change(start1In: Date | number) {
+          const change = function(start1In: Date | number) {
             const start1 = +start1In;
             canvasContext.save();
 
