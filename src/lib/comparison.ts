@@ -50,7 +50,6 @@ export class Comparison {
     const comparison = this;
     selection
       .on(this.mouseMoveId, function () {
-        // todo, why directly d3.mouse doesn't work?
         // tslint:disable-next-line: no-invalid-this
         context.focus(Math.round(mouse(this)[0]));
       })

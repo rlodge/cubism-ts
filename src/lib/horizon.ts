@@ -1,11 +1,15 @@
-import { ScaleLinear } from 'd3-scale';
-import { mouse, ValueFn } from 'd3-selection';
-import { format } from 'd3-format';
-import { interpolateRound } from 'd3-interpolate';
-import { scaleLinear } from 'd3-scale';
-import { BaseType, ContainerElement, select, Selection } from 'd3-selection';
-import { Context, ContextId } from './context';
-import { Metric } from './metric';
+import {ScaleLinear, scaleLinear} from 'd3-scale';
+import {
+  BaseType,
+  ContainerElement,
+  mouse,
+  select,
+  Selection
+} from 'd3-selection';
+import {format} from 'd3-format';
+import {interpolateRound} from 'd3-interpolate';
+import {Context, ContextId} from './context';
+import {Metric} from './metric';
 import {
   ColorFinder,
   Extent,
@@ -21,6 +25,10 @@ export enum HorizonMode {
 interface HorizonDatum {
   id: ContextId;
   metric: Metric;
+  changeId: string;
+  focusId: string;
+  mouseMoveId: string;
+  mouseOutId: string;
 }
 
 export class Horizon {
@@ -49,20 +57,20 @@ export class Horizon {
     '#31a354',
     '#006d2c',
   ];
-  private readonly changeId: string;
-  private readonly focusId: string;
-  private readonly mouseMoveId: string;
-  private readonly mouseOutId: string;
+  //private readonly changeId: string;
+  //private readonly focusId: string;
+  //private readonly mouseMoveId: string;
+  //private readonly mouseOutId: string;
 
   constructor(private context: Context) {
     this._buffer = document.createElement('canvas');
     this._buffer.width = context.size();
     this._buffer.height = 30;
-    const id = context.generateId();
-    this.changeId = `change.comparison-${id}`;
-    this.focusId = `focus.comparison-${id}`;
-    this.mouseMoveId = `mousemove.comparison-${id}`;
-    this.mouseOutId = `mouseout.comparison-${id}`;
+    //const id = context.generateId();
+    //this.changeId = `change.comparison-${id}`;
+    //this.focusId = `focus.comparison-${id}`;
+    //this.mouseMoveId = `mousemove.comparison-${id}`;
+    //this.mouseOutId = `mouseout.comparison-${id}`;
   }
 
   render<
@@ -76,12 +84,6 @@ export class Horizon {
     const horizon = this;
 
     selection
-      .on(this.mouseMoveId, function () {
-        context.focus(Math.round(mouse(this)[0]));
-      })
-      .on(this.mouseOutId, () => context.focus(null));
-
-    selection
       .append('canvas')
       .attr('width', this._width)
       .attr('height', this._height);
@@ -91,7 +93,9 @@ export class Horizon {
     selection.append('span').attr('class', 'value');
 
     selection.each(function (d, i) {
+
       const id = context.generateId();
+
       const metric_ =
         horizon._metric instanceof Metric
           ? horizon._metric
@@ -108,20 +112,37 @@ export class Horizon {
       const span = select(this).select('.value');
       const m = colors_.length >> 1;
 
+      let horizonDatum: HorizonDatum = {
+        id,
+        metric: metric_,
+        changeId: `change.horizon-${id}`,
+        focusId: `focus.horizon-${id}`,
+        mouseMoveId: `mousemove.horizon-${id}`,
+        mouseOutId: `mouseout.horizon-${id}`,
+      }
+
+      select(this)
+        .on(horizonDatum.mouseMoveId, function () {
+          context.focus(Math.round(mouse(this)[0]));
+        })
+        .on(horizonDatum.mouseOutId, () => context.focus(null));
+
       let start = -Infinity;
       let max_: number;
       let ready = false;
 
-      canvas.datum<HorizonDatum>({ id, metric: metric_ });
+      canvas.datum<HorizonDatum>(horizonDatum);
 
       const canvasNode = canvas.node();
       if (canvasNode) {
-        const maybeContext = canvasNode.getContext('2d');
-        if (maybeContext) {
-          const ctx = maybeContext;
-          function change(this: any, start1In: Date | number) {
+        const maybeCanvasContext = canvasNode.getContext('2d');
+        if (maybeCanvasContext) {
+
+          const canvasContext = maybeCanvasContext;
+
+          function change(start1In: Date | number) {
             const start1 = +start1In;
-            ctx.save();
+            canvasContext.save();
 
             // compute the new extent and ready flag
             let extent = metric_.extent();
@@ -140,7 +161,7 @@ export class Horizon {
                   if (canvas0) {
                     canvas0.clearRect(0, 0, horizon._width, horizon._height);
                     canvas0.drawImage(
-                      ctx.canvas,
+                      canvasContext.canvas,
                       dx,
                       0,
                       horizon._width - dx,
@@ -150,8 +171,8 @@ export class Horizon {
                       horizon._width - dx,
                       horizon._height
                     );
-                    ctx.clearRect(0, 0, horizon._width, horizon._height);
-                    ctx.drawImage(canvas0.canvas, 0, 0);
+                    canvasContext.clearRect(0, 0, horizon._width, horizon._height);
+                    canvasContext.drawImage(canvas0.canvas, 0, 0);
                   }
                 }
               }
@@ -162,14 +183,14 @@ export class Horizon {
             horizon._scale.domain([0, (max_ = max)]);
 
             // clear for the new data
-            ctx.clearRect(i0, 0, horizon._width - i0, horizon._height);
+            canvasContext.clearRect(i0, 0, horizon._width - i0, horizon._height);
 
             // record whether there are negative values to display
             let negative;
 
             // positive bands
             for (let j = 0; j < m; ++j) {
-              ctx.fillStyle = colors_[m + j];
+              canvasContext.fillStyle = colors_[m + j];
 
               // Adjust the range based on the current band index.
               let y0: number | undefined = (j - m + 1) * horizon._height;
@@ -185,7 +206,7 @@ export class Horizon {
                 if (y1 !== undefined) {
                   y1 = horizon._scale(y1);
                   if (y1 !== undefined && y0 !== undefined) {
-                    ctx.fillRect(i, y1, 1, y0 - y1);
+                    canvasContext.fillRect(i, y1, 1, y0 - y1);
                   }
                 }
               }
@@ -194,13 +215,13 @@ export class Horizon {
             if (negative) {
               // enable offset mode
               if (horizon._mode === 'offset') {
-                ctx.translate(0, horizon._height);
-                ctx.scale(1, -1);
+                canvasContext.translate(0, horizon._height);
+                canvasContext.scale(1, -1);
               }
 
               // negative bands
               for (let j = 0; j < m; ++j) {
-                ctx.fillStyle = colors_[m - 1 - j];
+                canvasContext.fillStyle = colors_[m - 1 - j];
 
                 // Adjust the range based on the current band index.
                 let y0: number | undefined = (j - m + 1) * horizon._height;
@@ -219,13 +240,13 @@ export class Horizon {
                     r2 !== undefined &&
                     y0 !== undefined
                   ) {
-                    ctx.fillRect(i, r1, 1, y0 - r2);
+                    canvasContext.fillRect(i, r1, 1, y0 - r2);
                   }
                 }
               }
             }
 
-            ctx.restore();
+            canvasContext.restore();
           }
 
           const focus = (i: number | null) => {
@@ -241,18 +262,18 @@ export class Horizon {
           };
 
           // Update the chart when the context changes.
-          context.on(horizon.changeId, change);
-          context.on(horizon.focusId, focus);
+          context.on(horizonDatum.changeId, change);
+          context.on(horizonDatum.focusId, focus);
 
           // Display the first metric change immediately,
           // but defer subsequent updates to the canvas change.
           // Note that someone still needs to listen to the metric,
           // so that it continues to update automatically.
-          metric_.on(horizon.changeId, function (start) {
+          metric_.on(horizonDatum.changeId, function (start) {
             change(start);
             focus(null);
             if (ready) {
-              metric_.on(horizon.changeId, (d) => d);
+              metric_.on(horizonDatum.changeId, (d) => d);
             }
           });
         }
@@ -266,13 +287,17 @@ export class Horizon {
     PElement extends BaseType,
     PDatum
   >(selection: Selection<GElement, Datum, PElement, PDatum>): void {
-    const _remove: ValueFn<BaseType, HorizonDatum, void> = (d) => {
-      d.metric.on(this.changeId);
-      this.context.on(this.changeId).on(this.focusId);
-    };
+    let context = this.context;
 
-    selection.on(this.mouseMoveId, null).on(this.mouseOutId, null);
-    selection.selectAll<BaseType, HorizonDatum>('canvas').each(_remove).remove();
+    selection.selectAll<GElement, HorizonDatum>('canvas')
+      .each(function (d) {
+        d.metric.on(d.changeId);
+        context.on(d.changeId).on(d.focusId);
+        select(this)
+          .on(d.mouseMoveId, null)
+          .on(d.mouseOutId, null)
+      })
+      .remove();
 
     selection.selectAll('.title,.value').remove();
   }

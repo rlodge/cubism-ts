@@ -98,6 +98,7 @@ export class Context {
     }
     this._step = maybeStep;
 
+    this.update();
     return this;
   }
 
@@ -109,6 +110,7 @@ export class Context {
     }
     this._clientDelay = maybeClientDelay;
 
+    this.update();
     return this;
   }
 
@@ -120,6 +122,7 @@ export class Context {
     }
     this._serverDelay = maybeServerDelay;
 
+    this.update();
     return this;
   }
 
@@ -130,7 +133,8 @@ export class Context {
       return this._size;
     }
     this._size = maybeSize;
-
+    this._scale.range([0, this._size]);
+    this.update();
     return this;
   }
 
