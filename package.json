@@ -1,6 +1,6 @@
 {
-  "name": "cubism-ts",
-  "version": "5.0.0",
+  "name": "@cubism-ts/library",
+  "version": "5.0.0-0",
   "description": "Cubism TS API",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
