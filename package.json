@@ -42,7 +42,7 @@
     "generate-sources": "node scripts/version.js",
     "prebuild": "run-s generate-sources",
     "start": "npx serve",
-    "deploy": "run-p reset-hard generate-sources build:* && npx webpack --mode production && node scripts/copy && npm publish build && npm publish dist"
+    "deploy": "run-p reset-hard generate-sources build:* && npx webpack --mode production && node scripts/copy && npm publish build --access public && npm publish dist --access public"
   },
   "engines": {
     "node": ">=10"
