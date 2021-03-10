@@ -10,3 +10,4 @@ coverage
 yarn.lock
 src/lib/version.ts
 .npmrc
+buildcache

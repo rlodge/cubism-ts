@@ -2,12 +2,12 @@
   "name": "@cubism-ts/library",
   "version": "5.0.0-0",
   "description": "Cubism TS API",
-  "main": "build/main/index.js",
-  "typings": "build/main/index.d.ts",
-  "module": "build/module/index.js",
+  "main": "main/index.js",
+  "typings": "main/index.d.ts",
+  "module": "module/index.js",
   "repository": "https://github.com/rlodge/cubism-ts",
   "license": "MIT",
-  "keywords": [],
+  "keywords": ["d3", "cubism"],
   "scripts": {
     "build": "run-p build:* && npx webpack --mode production",
     "build:main": "tsc -p tsconfig.json",
@@ -38,7 +38,8 @@
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
     "generate-sources": "node scripts/version.js",
     "prebuild": "run-s generate-sources",
-    "start": "npx serve"
+    "start": "npx serve",
+    "deploy": "run-p reset-hard generate-sources build:* && npx webpack --mode production && node scripts/copy && npm publish build && npm publish dist"
   },
   "engines": {
     "node": ">=10"
@@ -85,6 +86,7 @@
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-functional": "^3.0.2",
     "eslint-plugin-import": "^2.22.0",
+    "find-up": "^5.0.0",
     "gh-pages": "^3.1.0",
     "git-describe": "^4.0.4",
     "npm-run-all": "^4.1.5",
@@ -101,8 +103,8 @@
     "webpack-cli": "^4.5.0"
   },
   "files": [
-    "build/main",
-    "build/module",
+    "main",
+    "module",
     "!**/*.spec.*",
     "!**/*.json",
     "CHANGELOG.md",
