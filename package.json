@@ -7,7 +7,10 @@
   "module": "module/index.js",
   "repository": "https://github.com/rlodge/cubism-ts",
   "license": "MIT",
-  "keywords": ["d3", "cubism"],
+  "keywords": [
+    "d3",
+    "cubism"
+  ],
   "scripts": {
     "build": "run-p build:* && npx webpack --mode production",
     "build:main": "tsc -p tsconfig.json",
