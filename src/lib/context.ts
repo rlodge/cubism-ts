@@ -42,7 +42,7 @@ export class Context {
   private _keyDown: KeyDown | null = null;
 
   constructor() {
-    this.update();
+    this.updateInternalValues();
     this._timeout = setTimeout(() => {
       this.start();
     }, Context.startDelayMs);
@@ -71,28 +71,28 @@ export class Context {
       delay += this._step;
     }
 
-    const prepare = () => {
-      this._stop1 = new Date(
-        Math.floor((Date.now() - this._serverDelay) / this._step) * this._step
-      );
-      this._start1 = new Date(this._stop1.getTime() - this._size * this._step);
-      this._event.call('prepare', this, this._start1, this._stop1);
-
-      setTimeout(() => {
-        this._start0 = this._start1;
-        this._stop0 = this._stop1;
-        this._scale.domain([this._start0, this._stop0]);
-        this._event.call('beforechange', this, this._start1, this._stop1);
-        this._event.call('change', this, this._start1, this._stop1);
-        this._event.call('focus', this, this._focus);
-      }, this._clientDelay);
-
-      this._timeout = setTimeout(prepare, this._step);
-    };
-
-    this._timeout = setTimeout(prepare, delay);
+    this._timeout = setTimeout(() => this.update(), delay);
 
     return this;
+  }
+
+  update(): void {
+    this._stop1 = new Date(
+      Math.floor((Date.now() - this._serverDelay) / this._step) * this._step
+    );
+    this._start1 = new Date(this._stop1.getTime() - this._size * this._step);
+    this._event.call('prepare', this, this._start1, this._stop1);
+
+    setTimeout(() => {
+      this._start0 = this._start1;
+      this._stop0 = this._stop1;
+      this._scale.domain([this._start0, this._stop0]);
+      this._event.call('beforechange', this, this._start1, this._stop1);
+      this._event.call('change', this, this._start1, this._stop1);
+      this._event.call('focus', this, this._focus);
+    }, this._clientDelay);
+
+    this._timeout = setTimeout(() => this.update(), this._step);
   }
 
   step(): number;
@@ -103,7 +103,7 @@ export class Context {
     }
     this._step = maybeStep;
 
-    this.update();
+    this.updateInternalValues();
     return this;
   }
 
@@ -115,7 +115,7 @@ export class Context {
     }
     this._clientDelay = maybeClientDelay;
 
-    this.update();
+    this.updateInternalValues();
     return this;
   }
 
@@ -127,7 +127,7 @@ export class Context {
     }
     this._serverDelay = maybeServerDelay;
 
-    this.update();
+    this.updateInternalValues();
     return this;
   }
 
@@ -139,7 +139,7 @@ export class Context {
     }
     this._size = maybeSize;
     this._scale.range([0, this._size]);
-    this.update();
+    this.updateInternalValues();
     return this;
   }
 
@@ -224,7 +224,7 @@ export class Context {
     return new Horizon(this);
   }
 
-  private update(): void {
+  private updateInternalValues(): void {
     const now = Date.now();
     this._stop0 = new Date(
       Math.floor((now - this._serverDelay - this._clientDelay) / this._step) *

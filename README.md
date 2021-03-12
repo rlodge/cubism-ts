@@ -15,8 +15,8 @@ Version | D3 Version
 1. ES6 Usage or Typescript usage:
 
 ```
-npm install cubism-ts --save
-import { context } from 'cubism-es';
+npm install @cubism-ts/library --save
+import { cubism } from '@cubism-ts/library';
 ```
 
 Please note adding `cubism-ts` does _not_ add `d3` or other required packages; they are peer dependencies only.
